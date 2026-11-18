@@ -300,11 +300,17 @@ INSERT INTO public.students (student_code, parent_code, full_name, current_class
 ON CONFLICT (student_code) DO NOTHING;
 
 -- School messages
-INSERT INTO public.school_messages (message_type, title, message, target_audience) VALUES
-  ('App', 'Term 2 Results Released', 'Dear parent, Term 2 examination results are now available. Login to view your child''s report card.', 'parents'),
-  ('SMS', 'Mid-term Break', 'School will close on Friday 23rd August for mid-term break. Students resume on Monday 2nd September.', 'all'),
-  ('WhatsApp', 'Parent-Teacher Meeting', 'Parents are invited to a meeting on Saturday 7th September at 10 AM to discuss academic progress.', 'parents')
-ON CONFLICT DO NOTHING;
+INSERT INTO public.school_messages (message_type, title, message, target_audience)
+SELECT 'App', 'Term 2 Results Released', 'Dear parent, Term 2 examination results are now available. Login to view your child''s report card.', 'parents'
+WHERE NOT EXISTS (SELECT 1 FROM public.school_messages WHERE title = 'Term 2 Results Released');
+
+INSERT INTO public.school_messages (message_type, title, message, target_audience)
+SELECT 'SMS', 'Mid-term Break', 'School will close on Friday 23rd August for mid-term break. Students resume on Monday 2nd September.', 'all'
+WHERE NOT EXISTS (SELECT 1 FROM public.school_messages WHERE title = 'Mid-term Break');
+
+INSERT INTO public.school_messages (message_type, title, message, target_audience)
+SELECT 'WhatsApp', 'Parent-Teacher Meeting', 'Parents are invited to a meeting on Saturday 7th September at 10 AM to discuss academic progress.', 'parents'
+WHERE NOT EXISTS (SELECT 1 FROM public.school_messages WHERE title = 'Parent-Teacher Meeting');
 
 -- ============================================
 -- 7. CREATE DEMO USER ACCOUNTS
